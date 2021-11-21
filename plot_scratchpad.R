@@ -122,7 +122,17 @@ my_prepare_df_facet <- function(df,
                                 facet_var,
                                 bar_width, 
                                 stacked) {
-  purrr::map_dfr(unique(df[[deparse(substitute(facet_var))]]),
+  if (missing(facet_var)) {
+    my_prepare_df(
+      df,
+      {{x_axis_var}}, x_axis_order,
+      {{cat_var}}, cat_order,
+      {{value_var}},
+      bar_width,
+      stacked
+    )
+  } else {
+    purrr::map_dfr(unique(df[[deparse(substitute(facet_var))]]),
                  function(facet_val) {
                    my_prepare_df(
                      df %>% 
@@ -138,11 +148,12 @@ my_prepare_df_facet <- function(df,
                        {{facet_var}} := facet_val
                      )
                  })
+  }
 }
 
 ## stacked ----
 
-my_prep_df <- my_prepare_df(
+my_prep_df <- my_prepare_df_facet(
   df, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms", "Wobs"),
   cat.Var, c("High End", "Mid Range", "Low End"),
@@ -184,7 +195,7 @@ ggplot(my_prep_df) +
 
 ## side-by-side ----
 
-my_prep_df_stack <- my_prepare_df(
+my_prep_df_stack <- my_prepare_df_facet(
   df, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms", "Wobs"),
   cat.Var, c("High End", "Mid Range", "Low End"),
@@ -251,7 +262,7 @@ df_neg <- tibble(
 )
 df_neg
 
-my_prep_df_neg <- my_prepare_df(
+my_prep_df_neg <- my_prepare_df_facet(
   df_neg, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms", "Wobs"),
   cat.Var, c("High End", "Mid Range", "Low End"),
@@ -299,7 +310,7 @@ df_n <- tibble(
 )
 df_n
 
-my_prep_df_n <- my_prepare_df(
+my_prep_df_n <- my_prepare_df_facet(
   df_n, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms"),
   cat.Var, c("High End", "Mid Range", "Low End"),
@@ -344,7 +355,7 @@ df_nc <- tibble(
 )
 df_nc
 
-my_prep_df_nc <- my_prepare_df(
+my_prep_df_nc <- my_prepare_df_facet(
   df_nc, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms", "Wobs"),
   cat.Var, c("High End", "Mid Range", "Low End", "l4", "l5"),
@@ -385,7 +396,7 @@ df_nc2 <- tibble(
 df_nc2
 
 
-my_prep_df_nc2 <- my_prepare_df(
+my_prep_df_nc2 <- my_prepare_df_facet(
   df_nc2, 
   x.axis.Var, c("Widgets", "Gridgets", "Groms", "Wobs"),
   cat.Var, c("High End", "Mid Range"),
@@ -467,10 +478,4 @@ ggplot(my_prep_df_fac) +
                      labels = levels(my_prep_df_fac$x.axis.Var)) + 
   scale_color_manual(values = c("Green", "Red"))
 
-
-
-## ggplot extension ----
-
-# geom_waterfall 
-# (with stacked argument) OR (geom_waterfall2 for stacked alternate)
 
